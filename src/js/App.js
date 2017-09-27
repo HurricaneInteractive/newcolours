@@ -28,24 +28,26 @@ class App extends Component {
                 colours: snap.val()
             })
         });
-        firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION)
-            .then(function() {
-                firebase.auth().signInAnonymously().catch(function(error) {
+        if (this.state.anonymous_user == null) {
+            firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION)
+                .then(function() {
+                    firebase.auth().signInAnonymously().catch(function(error) {
+                        let errorMessage = error.message;
+                        console.log(error);
+                    });
+                })
+                .catch(function(error) {
                     let errorMessage = error.message;
                     console.log(error);
                 });
-            })
-            .catch(function(error) {
-                let errorMessage = error.message;
-                console.log(error);
+            firebase.auth().onAuthStateChanged(function(user) {
+                if (user) {
+                    _this.setState({
+                        'anonymous_user': user
+                    });
+                }
             });
-        firebase.auth().onAuthStateChanged(function(user) {
-            if (user) {
-                _this.setState({
-                    'anonymous_user': user
-                });
-            }
-        });
+        }
     }
 
     getInclusiveRandomNumber(min, max) {
@@ -156,4 +158,5 @@ class App extends Component {
     }
 }
 
-ReactDOM.render(<App />, document.getElementById('app'));
+//ReactDOM.render(<App />, document.getElementById('app'));
+export default App;
