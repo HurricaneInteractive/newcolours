@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 
 import firebase from './firebase';
+import { Loading } from './Ui';
 
 const url = require('../dist/css/style.css');
 
@@ -137,15 +138,7 @@ class App extends Component {
     render() {
         if (this.state.colours == null || this.state.anonymous_user == null) {
             return(
-                <div id="loading">
-                    <div className="bars">
-                        <div></div>
-                        <div></div>
-                        <div></div>
-                        <div></div>
-                    </div>
-                    <h2>Loading</h2>
-                </div>
+                <Loading />
             )
         }
         return(
