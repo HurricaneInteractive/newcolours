@@ -3,19 +3,22 @@ import ReactDOM from 'react-dom';
 import {
     BrowserRouter as Router,
     Route,
-    Link
+    Link,
+    HashRouter
 } from 'react-router-dom';
 
 import App from './App';
+import Login from './Login';
 
 class AppRouter extends React.Component {
     render() {
         return (
-            <Router>
+            <HashRouter>
                 <div>
-                    <Route exact path="/" component={App}/>
+                    <Route exact path="/" component={App} />
+                    <Route path="/login" component={Login} />
                 </div>
-            </Router>
+            </HashRouter>
         )
     }
 }
