@@ -29,26 +29,26 @@ class App extends Component {
                 colours: snap.val()
             })
         });
-        if (this.state.anonymous_user == null) {
-            firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION)
-                .then(function() {
-                    firebase.auth().signInAnonymously().catch(function(error) {
-                        let errorMessage = error.message;
-                        console.log(error);
-                    });
-                })
-                .catch(function(error) {
-                    let errorMessage = error.message;
-                    console.log(error);
-                });
-            firebase.auth().onAuthStateChanged(function(user) {
-                if (user) {
-                    _this.setState({
-                        'anonymous_user': user
-                    });
-                }
-            });
-        }
+        // if (this.state.anonymous_user == null) {
+        //     firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION)
+        //         .then(function() {
+        //             firebase.auth().signInAnonymously().catch(function(error) {
+        //                 let errorMessage = error.message;
+        //                 console.log(error);
+        //             });
+        //         })
+        //         .catch(function(error) {
+        //             let errorMessage = error.message;
+        //             console.log(error);
+        //         });
+        //     firebase.auth().onAuthStateChanged(function(user) {
+        //         if (user) {
+        //             _this.setState({
+        //                 'anonymous_user': user
+        //             });
+        //         }
+        //     });
+        // }
     }
 
     getInclusiveRandomNumber(min, max) {
@@ -68,7 +68,8 @@ class App extends Component {
             
             let newVote = val.votes + 1;
             let newVotedUsers = null;
-            let uid = _this.state.anonymous_user.uid;
+            // let uid = _this.props.anonymous_user.uid;
+            let uid = firebase.auth().currentUser.uid;
 
             if (val.hasOwnProperty('users_voted')) {
                 let usersVoted = val.users_voted;
@@ -104,7 +105,7 @@ class App extends Component {
 
             if (colour.hasOwnProperty('users_voted')) {
                 let users_voted = colour.users_voted;
-                let uid = this.state.anonymous_user.uid;
+                let uid = firebase.auth().currentUser.uid;
                 if (users_voted.indexOf(uid) != -1) {
                     current_anonymous_has_voted = true;
                 }
@@ -136,7 +137,7 @@ class App extends Component {
     }
 
     render() {
-        if (this.state.colours == null || this.state.anonymous_user == null) {
+        if (this.state.colours == null) {
             return(
                 <Loading />
             )
