@@ -48,10 +48,14 @@ input[type="submit"] {
   text-decoration: none;
   margin-top: 20px; }
 
-#login {
+#login,
+#add-new {
   margin: 0 auto;
   width: 460px; }
-  #login .login-modal {
+  #login .login-modal,
+  #login .new-modal,
+  #add-new .login-modal,
+  #add-new .new-modal {
     position: relative;
     margin: 130px auto 0;
     padding: 30px 10% 50px;
@@ -59,7 +63,10 @@ input[type="submit"] {
     -moz-border-radius: 5px;
     -khtml-border-radius: 5px;
     border-radius: 5px; }
-    #login .login-modal h2 {
+    #login .login-modal h2,
+    #login .new-modal h2,
+    #add-new .login-modal h2,
+    #add-new .new-modal h2 {
       margin: 0 0 20px;
       text-align: center;
       font-size: 21px;

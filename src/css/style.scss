@@ -52,10 +52,12 @@ input[type="submit"] {
     margin-top: 20px;
 }
 
-#login {
+#login,
+#add-new {
     margin: 0 auto;
     width: 460px;
-    .login-modal {
+    .login-modal,
+    .new-modal {
         position: relative;
         margin: 130px auto 0;
         padding: 30px 10% 50px;
