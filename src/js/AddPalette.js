@@ -8,8 +8,18 @@ class AddPalette extends React.Component {
 
     render() {
         return(
-            <div class="app-container">
-                <h2>Add new</h2>
+            <div id="add-new" class="app-container">
+                <div class="new-modal">
+                    <h2>Add new</h2>
+                    <form>
+                        <input name="name" placeholder="Palette Name" />
+                        <input name="hex1" placeholder="hex code" />
+                        <input name="hex2" placeholder="hex code" />
+                        <input name="hex3" placeholder="hex code" />
+                        <input name="hex4" placeholder="hex code" />
+                        <input type="submit" value="Create" id="submit-btn" />
+                    </form>
+                </div>
             </div>
         );
     }
