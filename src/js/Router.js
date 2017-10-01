@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Route, HashRouter, Redirect } from 'react-router-dom';
+import { Route, HashRouter, Redirect, hashHistory } from 'react-router-dom';
 
 import createHistory from 'history/createBrowserHistory';
 const history = createHistory();
@@ -21,33 +21,32 @@ class AppRouter extends React.Component {
         };
 
         this.loginAdminUser = this.loginAdminUser.bind(this);
+        this.createNewPalette = this.createNewPalette.bind(this);
     }
 
     componentWillMount() {
         const _this = this;
 
-        if (firebase.auth().currentUser == null) {
-            firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION)
-                .then(function() {
-                    firebase.auth().signInAnonymously().catch(function(error) {
+        firebase.auth().onAuthStateChanged(function(user) {
+            if (user) {
+                _this.setState({
+                    'anonymous_user': user
+                });
+            }
+            else {
+                firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION)
+                    .then(function() {
+                        firebase.auth().signInAnonymously().catch(function(error) {
+                            let errorMessage = error.message;
+                            console.log(error);
+                        });
+                    })
+                    .catch(function(error) {
                         let errorMessage = error.message;
                         console.log(error);
                     });
-                })
-                .catch(function(error) {
-                    let errorMessage = error.message;
-                    console.log(error);
-                });
-            // Testing only, this can be removed for production
-            // Serves no purpose
-            firebase.auth().onAuthStateChanged(function(user) {
-                if (user) {
-                    _this.setState({
-                        'anonymous_user': user
-                    });
-                }
-            });
-        }
+            }
+        });
     }
 
     loginAdminUser(email, password) {
@@ -63,6 +62,22 @@ class AppRouter extends React.Component {
             });
     }
 
+    createNewPalette(name, palette) {
+        let newKey = firebase.database().ref().child('colours').push().key;
+        let newPalette = {
+            hex_group: palette,
+            name: name,
+            votes: 0,
+            id: newKey
+        }
+        var updates = {};
+        updates['/colours/' + newKey] = newPalette;
+
+        firebase.database().ref().update(updates).then(function() {
+            history.push('#/new');
+        });
+    }
+
     render() {
         
         if (firebase.auth().currentUser == null) {
@@ -72,7 +87,7 @@ class AppRouter extends React.Component {
         }
 
         return (
-            <HashRouter>
+            <HashRouter history={hashHistory}>
                 <div>
                     <Route exact path="/" render={() => ( 
                         <App />
@@ -81,12 +96,12 @@ class AppRouter extends React.Component {
                         firebase.auth().currentUser.isAnonymous === false ? (
                              <Redirect to="/new" />
                         ) : (
-                            <Login loginUser={this.loginAdminUser} />
+                            <Login loginUser={ this.loginAdminUser } />
                         )
                     )} />
                     <Route path="/new" render={() => (
                         firebase.auth().currentUser.isAnonymous === false ? (
-                            <AddPalette />
+                            <AddPalette createNew={ this.createNewPalette } />
                         ) : (
                             <Redirect to="/" />
                         )
