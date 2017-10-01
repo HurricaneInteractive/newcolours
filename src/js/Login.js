@@ -9,6 +9,8 @@ class Login extends React.Component {
             email: '',
             password: ''
         }
+
+        this.onLogin = this.onLogin.bind(this);
     }
 
     onInputChange(e) {
@@ -28,7 +30,7 @@ class Login extends React.Component {
             <div id="login">
                 <div className="login-modal">
                     <h2>Login</h2>
-                    <form onSubmit={ this.onLogin.bind(this) }>
+                    <form onSubmit={ (e) => { this.onLogin(e) } }>
                         <input name="email" type="text" value={this.state.email} placeholder="Email" onChange={(e) => {this.onInputChange(e)}} />
                         <input name="password" type="password" value={this.state.password} placeholder="Password" onChange={(e) => {this.onInputChange(e)}} />
                         <input type="submit" value="Submit" id="submit-btn" />
