@@ -24,10 +24,10 @@ class App extends Component {
         const ref = database.ref('colours');
         const _this = this;
 
-        ref.on('value', (snap) => {
-            this.setState({
+        ref.once('value').then(function(snap){
+            _this.setState({
                 colours: snap.val()
-            })
+            });
         });
         // if (this.state.anonymous_user == null) {
         //     firebase.auth().setPersistence(firebase.auth.Auth.Persistence.SESSION)
@@ -51,6 +51,10 @@ class App extends Component {
         // }
     }
 
+    componentWillUnmount() {
+        firebase.database().ref().off();
+    }
+
     getInclusiveRandomNumber(min, max) {
         min = Math.ceil(min);
         max = Math.floor(max);
@@ -60,8 +64,9 @@ class App extends Component {
     upvote(e, index) {
         e.preventDefault();
         const database = firebase.database();
-        const paletteRef = database.ref('colours/' + index);
+        const paletteRef = database.ref().child('colours/' + index);
         const _this = this;
+        let uid = firebase.auth().currentUser.uid;
         
         paletteRef.once('value').then(function(snap) {
             let val = snap.val();
@@ -69,7 +74,6 @@ class App extends Component {
             let newVote = val.votes + 1;
             let newVotedUsers = null;
             // let uid = _this.props.anonymous_user.uid;
-            let uid = firebase.auth().currentUser.uid;
 
             if (val.hasOwnProperty('users_voted')) {
                 let usersVoted = val.users_voted;
@@ -86,6 +90,28 @@ class App extends Component {
             });
         });
 
+        let thisPalette = this.state.colours[index];
+        thisPalette.votes = thisPalette.votes + 1;
+
+        if (thisPalette.hasOwnProperty('users_voted')) {
+            thisPalette['users_voted'].push(uid);
+        }
+        else {
+            thisPalette['users_voted'] = [uid];
+        }
+
+        console.log(thisPalette);
+
+        this.setState({
+            colours: Object.assign(
+                {},
+                this.state.colours,
+                {
+                    [index]: thisPalette
+                }
+            )
+        });
+
     }
 
     toggleHexCode(e) {
@@ -99,12 +125,14 @@ class App extends Component {
     }
 
     createColourPalette(colours) {
-        return colours.map((colour, index) => {
-            var hex = colour.hex_group;
+        console.log(colours);
+        
+        let allColours = Object.keys(colours).map((key, index) => {
+            var hex = colours[key].hex_group;
             var current_anonymous_has_voted = false;
 
-            if (colour.hasOwnProperty('users_voted')) {
-                let users_voted = colour.users_voted;
+            if (colours[key].hasOwnProperty('users_voted')) {
+                let users_voted = colours[key].users_voted;
                 let uid = firebase.auth().currentUser.uid;
                 if (users_voted.indexOf(uid) != -1) {
                     current_anonymous_has_voted = true;
@@ -129,11 +157,13 @@ class App extends Component {
                             })
                         }
                     </div>
-                    <h2>{colour.name}</h2>
-                    <a onClick={(e) => { this.upvote(e, index) }} className={`votes ${ current_anonymous_has_voted ? 'voted' : '' }`}><span className="oi oi-heart"></span>{colour.votes}</a>
+                    <h2>{colours[key].name}</h2>
+                    <a onClick={(e) => { this.upvote(e, colours[key].id) }} className={`votes ${ current_anonymous_has_voted ? 'voted' : '' }`}><span className="oi oi-heart"></span>{colours[key].votes}</a>
                 </li>
             )
         });
+
+        return allColours;
     }
 
     render() {
