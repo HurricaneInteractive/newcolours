@@ -4,7 +4,10 @@ import ReactDOM from 'react-dom';
 import firebase from './firebase';
 import { Loading } from './Ui';
 
-const url = require('../dist/css/style.css');
+const url = require('../dist/main.bundle.css');
+
+const database = firebase.database;
+const colourRef = database().ref('colours');
 
 class App extends Component {
 
@@ -20,11 +23,10 @@ class App extends Component {
     }
 
     componentWillMount() {
-        const database = firebase.database();
-        const ref = database.ref('colours');
+        // const ref = database().ref('colours');
         const _this = this;
 
-        ref.once('value').then(function(snap){
+        colourRef.once('value').then(function(snap){
             _this.setState({
                 colours: snap.val()
             });
@@ -63,17 +65,17 @@ class App extends Component {
 
     upvote(e, index) {
         e.preventDefault();
-        const database = firebase.database();
-        const paletteRef = database.ref().child('colours/' + index);
+        // const database = firebase.database();
+        const paletteRef = database().ref().child('colours/' + index);
         const _this = this;
         let uid = firebase.auth().currentUser.uid;
         
         paletteRef.once('value').then(function(snap) {
             let val = snap.val();
+            const realID = val.id;
             
             let newVote = val.votes + 1;
             let newVotedUsers = null;
-            // let uid = _this.props.anonymous_user.uid;
 
             if (val.hasOwnProperty('users_voted')) {
                 let usersVoted = val.users_voted;
@@ -84,32 +86,19 @@ class App extends Component {
                 newVotedUsers = [uid];
             }
 
-            paletteRef.update({
-                'votes': newVote,
-                'users_voted': newVotedUsers
+            // paletteRef.update({
+            //     'votes': newVote,
+            //     'users_voted': newVotedUsers
+            // });
+
+            let allColours = _this.state.colours;
+            allColours[realID].votes = newVote;
+            allColours[realID].users_voted = newVotedUsers;
+    
+            _this.setState({
+                colours: allColours
             });
-        });
 
-        let thisPalette = this.state.colours[index];
-        thisPalette.votes = thisPalette.votes + 1;
-
-        if (thisPalette.hasOwnProperty('users_voted')) {
-            thisPalette['users_voted'].push(uid);
-        }
-        else {
-            thisPalette['users_voted'] = [uid];
-        }
-
-        console.log(thisPalette);
-
-        this.setState({
-            colours: Object.assign(
-                {},
-                this.state.colours,
-                {
-                    [index]: thisPalette
-                }
-            )
         });
 
     }
@@ -125,7 +114,7 @@ class App extends Component {
     }
 
     createColourPalette(colours) {
-        console.log(colours);
+        // console.log(colours);
         
         let allColours = Object.keys(colours).map((key, index) => {
             var hex = colours[key].hex_group;
@@ -140,7 +129,7 @@ class App extends Component {
             }
 
             return (
-                <li key={index}>
+                <li key={colours[key].id}>
                     <div className="hex-group">
                         {
                             hex.map((code, index) => {
